@@ -1,2 +1,0 @@
-trojan.keylogger
-trojan.virus

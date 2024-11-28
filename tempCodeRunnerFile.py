@@ -1,11 +1,18 @@
-#Ma1ware Dectection By Hash
-# def malware_checker(pathOfFile):
-#     hash_malware_check = md5_hash(pathOfFile)
 
-#     malware_hashes = open("virusHash.txt","r")
-#     malware_hashes_read = malware_hashes.read()
-#     malware_hashes.close()
-#     print(malware_hashes_read)
+            return sha256hash
+    except PermissionError:
+        print(f"Permission denied: {filename}")
+        return None  # Skip files with permission issues
+# print(sha256_hash("sample.jpg"))
+# Malware Detection By Hash
+def malware_checker(pathOfFile):
+    global malware_hashes
+    global virusInfo
 
-# malware_checker("sample.jpg")
-    
+    hash_malware_check = sha256_hash(pathOfFile)
+    if hash_malware_check is None:
+        return 0  # Skip files that couldn't be hashed
+
+    for idx, malware_hash in enumerate(malware_hashes):
+        if malware_hash == hash_malware_check:
+            return virusInfo[idx]

@@ -1,30 +1,59 @@
 import hashlib
-#Get Hash Of File
-def md5_hash(filename):
-    with open(filename, "rb") as f:
-        bytes = f.read()
-        md5hash = hashlib.md5(bytes).hexdigest()
-        f.close()
+import os
 
-    return md5hash
+# Global variable
+malware_hashes = list(open("virusHash.unibit", "r").read().split("\n"))
+virusInfo = list(open("virusInfo.unibit", "r").read().split("\n"))
 
-# print(md5_hash("sample.jpg"))   to get hash of things.
-
-#Ma1ware Dectection By Hash
+# Get Hash Of File
+def sha256_hash(filename):
+    try:
+        with open(filename, "rb") as f:
+            bytes = f.read()
+            sha256hash = hashlib.sha256(bytes).hexdigest()
+            return sha256hash
+    except PermissionError:
+        print(f"Permission denied: {filename}")
+        return None  # Skip files with permission issues
+# print(sha256_hash("sample.jpg"))
+# Malware Detection By Hash
 def malware_checker(pathOfFile):
-    hash_malware_check = md5_hash(pathOfFile)
+    global malware_hashes
+    global virusInfo
 
-    malware_hashes = open("virusHash.txt","r")
-    malware_hashes_read = malware_hashes.read()
-    malware_hashes.close()
+    hash_malware_check = sha256_hash(pathOfFile)
+    if hash_malware_check is None:
+        return 0  # Skip files that couldn't be hashed
 
-    virusInfo = open("virusInfo.txt","r").readlines()
+    for idx, malware_hash in enumerate(malware_hashes):
+        if malware_hash == hash_malware_check:
+            return virusInfo[idx]
 
+    return 0
 
-    if malware_hashes_read.find(hash_malware_check) != -1:
-        return virusInfo[malware_hashes_read.index(hash_malware_check)]
-    else:
-        return 0
+# Malware Detection In Folder
+virusName = []  # List of detected malware files
+def folderScanner():
+    # Get the list of all files and directories
+    dir_list = list()
+    for (dirpath,dirnames,filenames) in os.walk(r"C:\Users\Priya Sharma\Desktop\antivirus-scan"):
+        dir_list +=[os.path.join(dirpath, file) for file in filenames]
 
-print(malware_checker("sample.jpg"))
-    
+    for i in dir_list:
+        print(i)
+        if malware_checker(i) != 0:
+            virusName.append(malware_checker(i)+" ::  File :: " + i)    
+
+    # for root, dirs, files in os.walk(path):
+    #      Exclude .git directory
+    #     dirs[:] = [d for d in dirs if d != ".git"]
+
+    #     for file in files:
+    #         file_path = os.path.join(root, file)
+    #         result = malware_checker(file_path)
+    #         if result != 0:
+    #             virusName.append(f"{result} :: File :: {file}")
+
+folderScanner()
+
+print(virusName)
